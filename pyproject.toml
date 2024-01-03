@@ -27,13 +27,15 @@ name = "canonical-imports"
 readme = "README.md"
 requires-python = ">=3.8"
 
+
 [project.scripts]
 canonical-imports = "canonical_imports.__main__:main"
 
+
 [project.urls]
-Documentation = "https://github.com/unknown/canonical-imports#readme"
-Issues = "https://github.com/unknown/canonical-imports/issues"
-Source = "https://github.com/unknown/canonical-imports"
+Documentation = "https://github.com/15r10nk/canonical-imports#readme"
+Issues = "https://github.com/15r10nk/canonical-imports/issues"
+Source = "https://github.com/15r10nk/canonical-imports"
 
 [tool.black]
 target-version = ["py38"]
@@ -91,7 +93,7 @@ scripts.test = [
   "hatch run all:test-cov -- {args}",
   "coverage combine",
   "coverage html",
-  "coverage report --fail-under 100"
+  "coverage report  --fail-under 100 "
 ]
 
 
@@ -99,7 +101,7 @@ scripts.test = [
 dependencies = [
   "mkdocs>=1.4.2",
   "mkdocs-material[imaging]>=8.5.10",
-  "mkdocstrings[python-legacy]>=0.19.0"
+  "mkdocstrings>=0.19.0"
 ]
 scripts.serve = ["mkdocs serve {args}"]
 
