@@ -64,7 +64,6 @@ omit = [
   "src/canonical_imports/__about__.py"
 ]
 parallel = true
-source_pkgs = ["canonical_imports", "tests"]
 
 [tool.hatch.envs.default]
 scripts.test = "pytest {args:tests}"
@@ -76,9 +75,11 @@ dependencies = [
 [tool.hatch.envs.all]
 dependencies = [
   "coverage[toml]>=6.5",
+  "coverage-enable-subprocess",
   "pytest",
   "inline-snapshot"
 ]
+env-vars.TOP = "{root}"
 scripts.test-cov = "coverage run -m pytest {args:tests}"
 
 [[tool.hatch.envs.all.matrix]]
