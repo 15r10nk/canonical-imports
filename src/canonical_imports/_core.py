@@ -23,6 +23,10 @@ def is_private(name: str):
     return len(name) >= 2 and name[0] == "_" and name[1] != "_"
 
 
+def is_module_private(module_name: str):
+    return any(is_private(name) for name in module_name.split("."))
+
+
 @dataclass
 class Import:
     module: str
@@ -30,9 +34,7 @@ class Import:
     asname: Optional[str]
 
     def is_private(self):
-        return is_private(self.name) or any(
-            is_private(name) for name in self.module.split(".")
-        )
+        return is_private(self.name) or is_module_private(self.module)
 
     @classmethod
     def from_ast(cls, stmt: ast.ImportFrom, module: str):
@@ -45,6 +47,9 @@ class Import:
                 module_parts.append(stmt.module)
 
             yield Import(".".join(module_parts), name.name, name.asname or name.name)
+
+    def is_inside(self, other):
+        return self.module.startswith(other.module + ".")
 
 
 class Module:
@@ -98,6 +103,9 @@ class Module:
                         ):
                             self.imports.append(i)
 
+    def is_init(self):
+        return self.path.name == "__init__.py"
+
     def relative_to_me(self, name):
         assert name[0] != "."
         assert name != self.module
@@ -136,7 +144,7 @@ class Module:
 
                     step = 0
 
-                    all_imports = []
+                    all_imports = [first_import]
 
                     skip = False
 
@@ -159,11 +167,11 @@ class Module:
                     if skip:
                         continue
 
-                    for last_import in reversed(all_imports):
+                    for i in reversed(range(1, len(all_imports))):
                         if self.import_fixer.is_allowed(
-                            self.module, first_import, last_import
+                            self.module, all_imports[: i + 1]
                         ):
-                            new_imports[first_import.asname] = last_import
+                            new_imports[first_import.asname] = all_imports[i]
                             break
 
                 m = ast.Module(body=[], type_ignores=[])
@@ -221,11 +229,19 @@ class ImportFixer:
         self.package_cache = {}  # package_name -> folder
         self.flags = flags
 
-    def is_allowed(self, module, first_import, last_import):
-        if "public-private" in self.flags and (
-            not first_import.is_private() and last_import.is_private()
-        ):
-            return False
+    def is_allowed(self, module, import_chain):
+        if "public-private" in self.flags:
+            last_import = import_chain[-1]
+            if not is_module_private(module) and last_import.is_private():
+                return False
+
+        if "into-init" in self.flags:
+            if any(
+                self.is_init(init.module)
+                and all(imp.is_inside(init) for imp in import_chain[i + 1 :])
+                for i, init in enumerate(import_chain[:-1])
+            ):
+                return False
         return True
 
     def register(self, module, package_folder):
@@ -238,7 +254,7 @@ class ImportFixer:
             return Module(filename, self)
         return self.module_cache[filename]
 
-    def lookup_module(self, module) -> Optional[Module]:
+    def lookup_module(self, module: str) -> Optional[Module]:
         module_parts = module.split(".")
         package_name = module_parts[0]
         if package_name not in self.package_cache:
@@ -251,13 +267,17 @@ class ImportFixer:
         else:
             return
 
+    def is_init(self, module_name: str):
+        module = self.lookup_module(module_name)
+        return module is not None and module.is_init()
+
 
 @click.command()
 @click.option(
     "--no",
     help="Exclude specific imports",
     multiple=True,
-    type=click.Choice(["public-private", "init-module"]),
+    type=click.Choice(["public-private", "into-init"]),
 )
 @click.option("--write", "-w", help="write changed imports")
 @click.argument("files", nargs=-1, type=click.Path(exists=True))

@@ -54,6 +54,42 @@ fix: m/a.py
     )
 
 
+def test_no_init_module():
+    check(
+        files={
+            "m/__init__.py": "",
+            "m/a.py": "from .q import f",
+            "m/q/__init__.py": "from .b import f",
+            "m/q/b.py": "def f():pass",
+        },
+        changed_files=snapshot({"m/a.py": "from .q.b import f"}),
+        stdout=snapshot(
+            """\
+fix: m/a.py
+"""
+        ),
+        stderr=snapshot(""),
+    )
+
+    check(
+        files={
+            "m/__init__.py": "",
+            "m/a.py": "from .b import f",
+            "m/b.py": "from .q import f",
+            "m/q/__init__.py": "from .c import f",
+            "m/q/c.py": "def f():pass",
+        },
+        no=["into-init"],
+        changed_files=snapshot({"m/a.py": "from .q import f"}),
+        stdout=snapshot(
+            """\
+fix: m/a.py
+"""
+        ),
+        stderr=snapshot(""),
+    )
+
+
 def test_double_import():
     check(
         files={
