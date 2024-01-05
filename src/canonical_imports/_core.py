@@ -69,9 +69,13 @@ class Module:
 
         import_fixer.register(self, package_folder)
 
+        self.atok = None
+
         try:
             self.atok = asttokens.ASTTokens(self.path.read_text(), parse=True)
         except SyntaxError:
+            pass
+        except UnicodeDecodeError:
             pass
         else:
             assigned_names = {
@@ -131,6 +135,9 @@ class Module:
 
     def change_set(self):
         changes = []
+
+        if self.atok is None:
+            return ChangeSet(self.path, [])
 
         for stmt in ast.walk(self.tree):
             if isinstance(stmt, ast.ImportFrom):

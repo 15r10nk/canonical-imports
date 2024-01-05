@@ -14,7 +14,12 @@ def check(
         for name, content in files.items():
             d = Path(name)
             d.parent.mkdir(exist_ok=True, parents=True)
-            d.write_text(content)
+            if isinstance(content, str):
+                d.write_text(content)
+            elif isinstance(content, bytes):
+                d.write_bytes(content)
+            else:
+                assert False
 
         no = [f"--no={e}" for e in no]
 
@@ -34,7 +39,13 @@ def check(
         changed = {}
         for name, content in files.items():
             d = Path(name)
-            new_content = d.read_text()
+            if isinstance(content, str):
+                new_content = d.read_text()
+            elif isinstance(content, bytes):
+                new_content = d.read_bytes()
+            else:
+                assert False
+
             if new_content != content:
                 changed[name] = new_content
 
@@ -56,6 +67,20 @@ def test_simple_indirect():
 fix: m/a.py
 """
         ),
+        stderr=snapshot(""),
+    )
+
+
+def test_unicode_problem():
+    check(
+        files={
+            "m/__init__.py": "",
+            "m/a.py": "from .b import f",
+            "m/b.py": b'print("b\xf6se")\n',
+        },
+        args=["-w"],
+        changed_files=snapshot({}),
+        stdout=snapshot(""),
         stderr=snapshot(""),
     )
 
