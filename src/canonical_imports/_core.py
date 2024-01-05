@@ -319,4 +319,4 @@ def main(no, files, write):
                 text.append("```")
                 text.append("---")
 
-        rprint(Markdown("\n".join(text), code_theme="vim"))
+        rprint(Markdown("\n".join(text)))
