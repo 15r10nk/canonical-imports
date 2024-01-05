@@ -30,6 +30,7 @@ license = "MIT"
 name = "canonical-imports"
 readme = "README.md"
 requires-python = ">=3.8"
+version="0.2.0"
 
 
 [project.scripts]
@@ -50,7 +51,7 @@ major_version_zero = true
 tag_format = "v$major.$minor.$patch$prerelease"
 update_changelog_on_bump = true
 version_files = [
-  "src/canonical_imports/__init__.py:version"
+  "src/canonical_imports/__init__.py:__version__"
 ]
 version_provider = "pep621"
 
