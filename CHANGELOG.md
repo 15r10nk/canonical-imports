@@ -1,3 +1,10 @@
+## v0.2.1 (2024-01-05)
+
+### Fix
+
+- skip files with unicode errors
+- use default color theme for preview diff
+
 ## v0.2.0 (2024-01-05)
 
 ### Feat
