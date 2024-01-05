@@ -5,7 +5,9 @@ from click.testing import CliRunner
 from inline_snapshot import snapshot
 
 
-def check(files, file_args=None, no=[], changed_files={}, stdout="", stderr=""):
+def check(
+    files, file_args=None, args=[], no=[], changed_files={}, stdout="", stderr=""
+):
     runner = CliRunner(mix_stderr=False)
 
     with runner.isolated_filesystem():
@@ -19,10 +21,13 @@ def check(files, file_args=None, no=[], changed_files={}, stdout="", stderr=""):
         if file_args is None:
             file_args = list(files.keys())
 
-        result = runner.invoke(main, file_args + no, catch_exceptions=False)
+        result = runner.invoke(main, file_args + no + args, catch_exceptions=False)
         # print(result.stdout)
         assert result.stderr == stderr
-        assert result.stdout == stdout
+        if " \n" in result.stdout:
+            assert result.stdout.replace("\n", "\u23CE\n") == stdout
+        else:
+            assert result.stdout == stdout
 
         assert result.exit_code == 0
 
@@ -44,10 +49,39 @@ def test_simple_indirect():
             "m/b.py": "from .c import f",
             "m/c.py": "def f():pass",
         },
+        args=["-w"],
         changed_files=snapshot({"m/a.py": "from .c import f"}),
         stdout=snapshot(
             """\
 fix: m/a.py
+"""
+        ),
+        stderr=snapshot(""),
+    )
+
+
+def test_preview():
+    check(
+        files={
+            "m/__init__.py": "",
+            "m/a.py": "from .b import f",
+            "m/b.py": "from .c import f",
+            "m/c.py": "def f():pass",
+        },
+        changed_files=snapshot({}),
+        stdout=snapshot(
+            """\
+⏎
+                                     m/a.py                                     ⏎
+⏎
+                                                                                ⏎
+ @@ -1 +1 @@                                                                    ⏎
+                                                                                ⏎
+ -from .b import f                                                              ⏎
+ +from .c import f                                                              ⏎
+                                                                                ⏎
+⏎
+────────────────────────────────────────────────────────────────────────────────⏎
 """
         ),
         stderr=snapshot(""),
@@ -62,6 +96,7 @@ def test_no_init_module():
             "m/q/__init__.py": "from .b import f",
             "m/q/b.py": "def f():pass",
         },
+        args=["-w"],
         changed_files=snapshot({"m/a.py": "from .q.b import f"}),
         stdout=snapshot(
             """\
@@ -79,6 +114,7 @@ fix: m/a.py
             "m/q/__init__.py": "from .c import f",
             "m/q/c.py": "def f():pass",
         },
+        args=["-w"],
         no=["into-init"],
         changed_files=snapshot({"m/a.py": "from .q import f"}),
         stdout=snapshot(
@@ -99,6 +135,7 @@ def test_double_import():
             "m/c.py": "def f():pass",
             "m/d.py": "def f():pass",
         },
+        args=["-w"],
         changed_files=snapshot({}),
         stdout=snapshot(""),
         stderr=snapshot(""),
@@ -113,6 +150,7 @@ def test_import_override():
             "m/b.py": "from .c import f\nif True: f=5",
             "m/c.py": "def f():pass",
         },
+        args=["-w"],
         changed_files=snapshot({}),
         stdout=snapshot(""),
         stderr=snapshot(""),
@@ -127,6 +165,7 @@ def test_import_as():
             "m/b.py": "from .c import f as g",
             "m/c.py": "def f():pass",
         },
+        args=["-w"],
         changed_files=snapshot({"m/a.py": "from .c import f as g"}),
         stdout=snapshot(
             """\
@@ -145,6 +184,7 @@ def test_multiple_imports_to_follow():
             "m/b.py": "from .c import g\nfrom .c import f",
             "m/c.py": "def f():pass",
         },
+        args=["-w"],
         changed_files=snapshot({"m/a.py": "from .c import f"}),
         stdout=snapshot(
             """\
@@ -163,6 +203,7 @@ def test_simple_indirect_to_other_file():
             "m/b.py": "from .c import f",
             "m/c.py": "def f():pass",
         },
+        args=["-w"],
         file_args=["m/a.py"],
         changed_files=snapshot({"m/a.py": "from .c import f"}),
         stdout=snapshot(
@@ -183,6 +224,7 @@ def test_different_package():
             "b/b.py": "from .c import f",
             "b/c.py": "def f():pass",
         },
+        args=["-w"],
         changed_files=snapshot({"m/a.py": "from b.c import f"}),
         stdout=snapshot(
             """\
@@ -199,6 +241,7 @@ def test_different_unknown_package():
             "m/__init__.py": "",
             "m/a.py": "from b.b import f",
         },
+        args=["-w"],
         changed_files=snapshot({}),
         stdout=snapshot(""),
         stderr=snapshot(""),
@@ -212,6 +255,7 @@ def test_cycle():
             "m/a.py": "from .b import f",
             "m/b.py": "from .a import f",
         },
+        args=["-w"],
         changed_files=snapshot({}),
         stdout=snapshot(""),
         stderr=snapshot(""),
@@ -225,6 +269,7 @@ def test_import_module():
             "m/a.py": "from . import f",
             "m/b.py": "def f():pass",
         },
+        args=["-w"],
         changed_files=snapshot({"m/a.py": "from .b import f"}),
         stdout=snapshot(
             """\
@@ -242,6 +287,7 @@ def test_invalid_syntax():
             "m/a.py": "from .b import f",
             "m/b.py": "5///4",
         },
+        args=["-w"],
         file_args=["m/a.py"],
         changed_files=snapshot({}),
         stdout=snapshot(""),
@@ -255,6 +301,7 @@ def test_module_not_found():
             "m/__init__.py": "",
             "m/a.py": "from .b import f",
         },
+        args=["-w"],
         changed_files=snapshot({}),
         stdout=snapshot(""),
         stderr=snapshot(""),
@@ -269,6 +316,7 @@ def test_private_indirect():
             "m/b.py": "from ._c import f",
             "m/_c.py": "def f():pass",
         },
+        args=["-w"],
         no=["public-private"],
         changed_files=snapshot({}),
         stdout=snapshot(""),
@@ -282,6 +330,7 @@ def test_private_indirect():
             "m/_b.py": "from .c import f",
             "m/c.py": "def f():pass",
         },
+        args=["-w"],
         no=["public-private"],
         changed_files=snapshot({"m/a.py": "from .c import f"}),
         stdout=snapshot(

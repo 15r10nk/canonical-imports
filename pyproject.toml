@@ -17,8 +17,12 @@ classifiers = [
   "Programming Language :: Python :: Implementation :: CPython",
   "Programming Language :: Python :: Implementation :: PyPy"
 ]
-dependencies = ["asttokens",
-    "click","astunparse"]
+dependencies = [
+    "asttokens",
+    "click",
+    "astunparse",
+    "rich"
+]
 description = 'directly import everything from where it is defined'
 dynamic = ["version"]
 keywords = []

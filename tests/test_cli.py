@@ -13,7 +13,7 @@ Usage: canonical-imports [OPTIONS] [FILES]...
 Options:
   --no [public-private|into-init]
                                   Exclude specific imports
-  -w, --write TEXT                write changed imports
+  -w, --write                     write changed imports
   --help                          Show this message and exit.
 """
     )

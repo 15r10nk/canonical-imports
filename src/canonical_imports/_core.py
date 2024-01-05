@@ -1,7 +1,7 @@
 import ast
 import collections
 import copy
-import sys
+import difflib
 from collections import defaultdict
 from dataclasses import dataclass
 from pathlib import Path
@@ -9,14 +9,10 @@ from typing import Optional
 
 import asttokens
 import click
+from rich import print as rprint
+from rich.markdown import Markdown
 
-if sys.version_info >= (3, 9):
-    from ast import unparse
-else:
-    from astunparse import unparse as _unparse  # type: ignore
-
-    def unparse(node):
-        return _unparse(node).strip()
+from ._utils import unparse
 
 
 def is_private(name: str):
@@ -133,7 +129,7 @@ class Module:
             if import_.asname == name:
                 return import_
 
-    def fix(self):
+    def change_set(self):
         changes = []
 
         for stmt in ast.walk(self.tree):
@@ -217,10 +213,30 @@ class Module:
                         )
                     )
 
-        if changes:
-            print(f"fix: {self.path}")
-            old_code = self.path.read_text()
-            self.path.write_text(asttokens.util.replace(old_code, changes))
+        return ChangeSet(self.path, changes)
+
+
+class ChangeSet:
+    def __init__(self, path, changes):
+        self.path = path
+        self.changes = changes
+
+    def __bool__(self):
+        return bool(self.changes)
+
+    def preview(self):
+        old_code = self.path.read_text()
+        new_code = asttokens.util.replace(old_code, self.changes)
+
+        diff = difflib.unified_diff(
+            old_code.splitlines(),
+            new_code.splitlines(),
+        )
+        return diff
+
+    def fix(self):
+        old_code = self.path.read_text()
+        self.path.write_text(asttokens.util.replace(old_code, self.changes))
 
 
 class ImportFixer:
@@ -279,12 +295,28 @@ class ImportFixer:
     multiple=True,
     type=click.Choice(["public-private", "into-init"]),
 )
-@click.option("--write", "-w", help="write changed imports")
+@click.option("--write", "-w", is_flag=True, help="write changed imports")
 @click.argument("files", nargs=-1, type=click.Path(exists=True))
 def main(no, files, write):
     import_fixer = ImportFixer(set(no))
 
     source_files = [Module(Path(file), import_fixer) for file in files]
 
-    for file in source_files:
-        file.fix()
+    if write:
+        for file in source_files:
+            change_set = file.change_set()
+            if change_set:
+                print(f"fix: {file.path}")
+                change_set.fix()
+    else:
+        text = []
+        for file in source_files:
+            change_set = file.change_set()
+            if change_set:
+                text.append(f"## {file.path}")
+                text.append("```diff")
+                text += list(change_set.preview())[2:]
+                text.append("```")
+                text.append("---")
+
+        rprint(Markdown("\n".join(text), code_theme="vim"))
