@@ -311,11 +311,24 @@ class ImportFixer:
     type=click.Choice(["public-private", "into-init"]),
 )
 @click.option("--write", "-w", is_flag=True, help="write changed imports")
-@click.argument("files", nargs=-1, type=click.Path(exists=True))
-def main(no, files, write):
+@click.argument("paths", nargs=-1, type=click.Path(exists=True))
+def main(no, paths, write):
+    """`canonical-imports` follows your imports and finds out where the things
+    you are importing are actually defined.
+
+    PATHS: python files or directories with should be scanned for python files
+    """
     import_fixer = ImportFixer(set(no))
 
-    source_files = [Module(Path(file), import_fixer) for file in files]
+    files = []
+    for file in paths:
+        file = Path(file)
+        if file.is_dir():
+            files += list(file.rglob("*.py"))
+        else:
+            files.append(file)
+
+    source_files = [Module(file, import_fixer) for file in files]
 
     if write:
         for file in source_files:

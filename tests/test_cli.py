@@ -8,7 +8,12 @@ def test_cli():
     assert result.returncode == 0
     assert result.stdout.decode() == snapshot(
         """\
-Usage: canonical-imports [OPTIONS] [FILES]...
+Usage: canonical-imports [OPTIONS] [PATHS]...
+
+  `canonical-imports` follows your imports and finds out where the things you
+  are importing are actually defined.
+
+  PATHS: python files or directories with should be scanned for python files
 
 Options:
   --no [public-private|into-init]

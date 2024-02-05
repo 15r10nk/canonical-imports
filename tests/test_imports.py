@@ -407,3 +407,39 @@ fix: m/a.py
         ),
         stderr=snapshot(""),
     )
+
+
+def test_scan_directories():
+    check(
+        files={
+            "m/__init__.py": "",
+            "m/a.py": """\
+from .b import f
+""",
+            "m/dir/__init__.py": "",
+            "m/dir/a.py": """\
+from ..b import f
+""",
+            "m/b.py": "from .c import f",
+            "m/c.py": "def f():pass",
+        },
+        args=["-w"],
+        file_args=["m"],
+        changed_files=snapshot(
+            {
+                "m/a.py": """\
+from .c import f
+""",
+                "m/dir/a.py": """\
+from ..c import f
+""",
+            }
+        ),
+        stdout=snapshot(
+            """\
+fix: m/a.py
+fix: m/dir/a.py
+"""
+        ),
+        stderr=snapshot(""),
+    )
