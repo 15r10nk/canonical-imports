@@ -23,7 +23,7 @@ You should then have access to [this repository](https://github.com/15r10nk-insi
 You can install it with pip and the github url.
 
 ``` bash
-pip install git+ssh://git@github.com/15r10nk-insiders/canonical-imports.git@insider 
+pip install git+ssh://git@github.com/15r10nk-insiders/canonical-imports.git@insider
 ```
 
 ## Key Features
@@ -34,7 +34,7 @@ pip install git+ssh://git@github.com/15r10nk-insiders/canonical-imports.git@insi
 
 I will show you what it does with the following example:
 
-``` python 
+``` python
 # m/a.py
 from ._core import helper
 
@@ -42,6 +42,7 @@ from ._core import helper
 from ._utils import helper
 
 # m/_utils.py
+
 
 def helper():
     print("some help")

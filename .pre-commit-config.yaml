@@ -48,14 +48,14 @@ repos:
 - hooks:
   - id: black
   repo: https://github.com/psf/black
-  rev: 23.10.1
+  rev: 24.1.1
 - hooks:
   - id: blacken-docs
   repo: https://github.com/asottile/blacken-docs
   rev: 1.16.0
 
 - repo: https://github.com/macisamuele/language-formatters-pre-commit-hooks
-  rev: v2.11.0
+  rev: v2.12.0
   hooks:
   - id: pretty-format-yaml
     args: [--autofix, --indent, '2']
@@ -72,7 +72,7 @@ repos:
     stages:
     - commit-msg
   repo: https://github.com/commitizen-tools/commitizen
-  rev: 3.12.0
+  rev: v3.14.1
 
 
 - repo: https://github.com/PyCQA/docformatter
