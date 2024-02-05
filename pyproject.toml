@@ -24,7 +24,6 @@ dependencies = [
     "rich"
 ]
 description = 'directly import everything from where it is defined'
-dynamic = ["version"]
 keywords = []
 license = "MIT"
 name = "canonical-imports"
