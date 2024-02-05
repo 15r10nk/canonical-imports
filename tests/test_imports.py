@@ -1,3 +1,4 @@
+import re
 from pathlib import Path
 
 from canonical_imports._core import main
@@ -9,6 +10,14 @@ def check(
     files, file_args=None, args=[], no=[], changed_files={}, stdout="", stderr=""
 ):
     runner = CliRunner(mix_stderr=False)
+
+    def normalize(text):
+        if " \n" in text:
+            text = text.replace("\n", "\u23CE\n")
+        text = re.sub(
+            r"^\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d", "<date_time>", text, re.MULTILINE
+        )
+        return text
 
     with runner.isolated_filesystem():
         for name, content in files.items():
@@ -27,12 +36,8 @@ def check(
             file_args = list(files.keys())
 
         result = runner.invoke(main, file_args + no + args, catch_exceptions=False)
-        # print(result.stdout)
-        assert result.stderr == stderr
-        if " \n" in result.stdout:
-            assert result.stdout.replace("\n", "\u23CE\n") == stdout
-        else:
-            assert result.stdout == stdout
+        assert normalize(result.stderr) == stderr
+        assert normalize(result.stdout) == stdout
 
         assert result.exit_code == 0
 
@@ -80,7 +85,11 @@ def test_unicode_problem():
         },
         args=["-w"],
         changed_files=snapshot({}),
-        stdout=snapshot(""),
+        stdout=snapshot(
+            """\
+<date_time> [error    ] could not decode m/b.py
+"""
+        ),
         stderr=snapshot(""),
     )
 
@@ -315,7 +324,11 @@ def test_invalid_syntax():
         args=["-w"],
         file_args=["m/a.py"],
         changed_files=snapshot({}),
-        stdout=snapshot(""),
+        stdout=snapshot(
+            """\
+<date_time> [error    ] could not parse m/b.py
+"""
+        ),
         stderr=snapshot(""),
     )
 

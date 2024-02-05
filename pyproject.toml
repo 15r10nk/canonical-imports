@@ -21,7 +21,8 @@ dependencies = [
     "asttokens",
     "click",
     "astunparse",
-    "rich"
+    "rich",
+    "structlog >= 24.0.0"
 ]
 description = 'directly import everything from where it is defined'
 keywords = []

@@ -9,10 +9,13 @@ from typing import Optional
 
 import asttokens
 import click
+import structlog
 from rich import print as rprint
 from rich.markdown import Markdown
 
 from ._utils import unparse
+
+log = structlog.get_logger()
 
 
 def is_private(name: str):
@@ -74,9 +77,9 @@ class Module:
         try:
             self.atok = asttokens.ASTTokens(self.path.read_text(), parse=True)
         except SyntaxError:
-            pass
+            log.error(f"could not parse {self.path}")
         except UnicodeDecodeError:
-            pass
+            log.error(f"could not decode {self.path}")
         else:
             assigned_names = {
                 name.id
