@@ -378,3 +378,32 @@ fix: m/a.py
         ),
         stderr=snapshot(""),
     )
+
+
+def test_preserve_style():
+    check(
+        files={
+            "m/__init__.py": "",
+            "m/a.py": """\
+from .b import f
+from m.b import f
+""",
+            "m/b.py": "from .c import f",
+            "m/c.py": "def f():pass",
+        },
+        args=["-w"],
+        changed_files=snapshot(
+            {
+                "m/a.py": """\
+from .c import f
+from m.c import f
+"""
+            }
+        ),
+        stdout=snapshot(
+            """\
+fix: m/a.py
+"""
+        ),
+        stderr=snapshot(""),
+    )

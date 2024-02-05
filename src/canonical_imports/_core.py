@@ -187,9 +187,14 @@ class Module:
                     by_module[import_.module].append((import_name, import_))
 
                 for module, imports in by_module.items():
+                    is_relative = stmt.level != 0
                     m.body.append(
                         ast.ImportFrom(
-                            **self.relative_to_me(module),
+                            **(
+                                self.relative_to_me(module)
+                                if is_relative
+                                else {"level": 0, "module": module}
+                            ),
                             names=[
                                 ast.alias(
                                     name=import_.name,
