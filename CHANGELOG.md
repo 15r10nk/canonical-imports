@@ -1,3 +1,15 @@
+## v0.3.0 (2024-02-05)
+
+### Feat
+
+- search recursive into directories which are provided in the command line
+- preserve relative/absolute import style
+- added logging for errors
+
+### Fix
+
+- removed dynamic version
+
 ## v0.2.1 (2024-01-05)
 
 ### Fix
