@@ -1,7 +1,7 @@
 <!-- -8<- [start:Header] -->
 
 
-![ci](https://github.com/15r10nk/canonical-imports/actions/workflows/ci.yml/badge.svg?branch=main)
+![ci](https://github.com/15r10nk-insiders/canonical-imports/actions/workflows/ci.yml/badge.svg?branch=main)
 [![Docs](https://img.shields.io/badge/docs-mkdocs-green)](https://15r10nk.github.io/canonical-imports/)
 [![pypi version](https://img.shields.io/pypi/v/canonical-imports.svg)](https://pypi.org/project/canonical-imports/)
 ![Python Versions](https://img.shields.io/pypi/pyversions/canonical-imports)
@@ -18,13 +18,13 @@ It can change your imports which makes your code cleaner and maybe even faster.
 ## Installation
 
 
-This project is currently only available for insiders, which mean that you can get access to it if you sponsor me.
-You should then have access to [this repository](https://github.com:15r10nk-insiders/canonical-imports.git).
+This project is currently only available for insiders, which mean that you can get access to it if you [sponsor](https://github.com/sponsors/15r10nk) me.
+You should then have access to [this repository](https://github.com/15r10nk-insiders/canonical-imports).
 
 You can install it with pip and the github url.
 
 ``` bash
-pip install git+ssh://git@github.com:15r10nk-insiders/canonical-imports.git@insiders
+pip install git+ssh://git@github.com/15r10nk-insiders/canonical-imports.git@insider
 ```
 
 ## Key Features
@@ -49,22 +49,61 @@ def helper():
     print("some help")
 ```
 
+`helper` was moved from `_core` to `_utils`
+
 ``` bash
 canonical-imports -w m/a.py
 ```
 
-replaces `m/a.py` with
+changes `m/a.py` to:
 
 ``` python
 # m/a.py
-from ._core import helper
+from ._utils import helper
 ```
 
 
 ## Usage
 
 You can use `canonical-imports` from the command line to fix some files.
+
+```bash
+canonical-imports my_package/something.py
+```
+
 Use `canonical-imports --help` for more options.
+
+### Options
+
+canonical-imports follows all imports by default. `--no` can be used to prevent certain types of import changes.
+- `--no public-private` prevents changing public imports into private imports like in the following:
+    ``` diff
+    -from package.module import Thing
+    +from package.module._submodule import Thing
+    ```
+- `--no into-init` prevents following imports into `__init__.py` files.
+    Example:
+    ``` python
+    # m/__init__.py
+    ...
+
+    # m/a.py
+    from .b import f  # <-- change to: from .q import f
+
+    # m/b.py
+    from .q import f  # prevent changing to: from .q.c import f
+
+    # m/q/__init__.py
+    from .c import f
+
+
+    # m/q/c.py
+    def f():
+        pass
+    ```
+    This rule does nothing if the import chain leaves the package `m.q` again (if `f` would be defined another package `m.x` for example).
+    This option might be useful if you do not use private module paths (with leading `_`).
+
 
 <!-- -8<- [start:Feedback] -->
 ## Issues
