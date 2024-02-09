@@ -75,13 +75,13 @@ Use `canonical-imports --help` for more options.
 ### Options
 
 canonical-imports follows all imports by default. `--no` can be used to prevent certain types of import changes.
-- `--no public-private` prevents changing public imports into private imports like the follow:
+- `--no public-private` prevents changing public imports into private imports like in the following:
     ``` diff
     -from package.module import Thing
     +from package.module._submodule import Thing
     ```
-- `--no into-init` do not follow imports into `__init__.py` files.
-    example:
+- `--no into-init` prevents following imports into `__init__.py` files.
+    Example:
     ``` python
     # m/__init__.py
     ...
@@ -90,7 +90,7 @@ canonical-imports follows all imports by default. `--no` can be used to prevent 
     from .b import f  # <-- change to: from .q import f
 
     # m/b.py
-    from .q import f
+    from .q import f  # prevent changing to: from .q.c import f
 
     # m/q/__init__.py
     from .c import f
