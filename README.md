@@ -23,7 +23,7 @@ You should then have access to [this repository](https://github.com/15r10nk-insi
 You can install it with pip and the github url.
 
 ``` bash
-pip install git+ssh://git@github.com/15r10nk-insiders/canonical-imports.git@insider 
+pip install git+ssh://git@github.com/15r10nk-insiders/canonical-imports.git@insider
 ```
 
 ## Key Features
@@ -34,7 +34,7 @@ pip install git+ssh://git@github.com/15r10nk-insiders/canonical-imports.git@insi
 
 I will show you what it does with the following example:
 
-``` python 
+``` python
 # m/a.py
 from ._core import helper
 
@@ -42,6 +42,7 @@ from ._core import helper
 from ._utils import helper
 
 # m/_utils.py
+
 
 def helper():
     print("some help")
@@ -70,6 +71,38 @@ canonical-imports my_package/something.py
 ```
 
 Use `canonical-imports --help` for more options.
+
+### Options
+
+canonical-imports follows all imports by default. `--no` can be used to prevent certain types of import changes.
+- `--no public-private` prevents changing public imports into private imports like the follow:
+    ``` diff
+    -from package.module import Thing
+    +from package.module._submodule import Thing
+    ```
+- `--no into-init` do not follow imports into `__init__.py` files.
+    example:
+    ``` python
+    # m/__init__.py
+    ...
+
+    # m/a.py
+    from .b import f  # <-- change to: from .q import f
+
+    # m/b.py
+    from .q import f
+
+    # m/q/__init__.py
+    from .c import f
+
+
+    # m/q/c.py
+    def f():
+        pass
+    ```
+    This rule does nothing if the import chain leaves the package `m.q` again (if `f` would be defined another package `m.x` for example).
+    This option might be useful if you do not use private module paths (with leading `_`).
+
 
 <!-- -8<- [start:Feedback] -->
 ## Issues
