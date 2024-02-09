@@ -6,6 +6,3 @@
 
 
 This project and all the here described features are currently only available for insiders.
-
-
-
