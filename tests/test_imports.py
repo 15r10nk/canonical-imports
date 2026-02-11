@@ -13,7 +13,7 @@ def check(
 
     def normalize(text):
         if " \n" in text:
-            text = text.replace("\n", "\u23CE\n")
+            text = text.replace("\n", "\u23ce\n")
         text = re.sub(
             r"^\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d", "<date_time>", text, re.MULTILINE
         )
@@ -67,11 +67,9 @@ def test_simple_indirect():
         },
         args=["-w"],
         changed_files=snapshot({"m/a.py": "from .c import f"}),
-        stdout=snapshot(
-            """\
+        stdout=snapshot("""\
 fix: m/a.py
-"""
-        ),
+"""),
         stderr=snapshot(""),
     )
 
@@ -85,11 +83,9 @@ def test_unicode_problem():
         },
         args=["-w"],
         changed_files=snapshot({}),
-        stdout=snapshot(
-            """\
+        stdout=snapshot("""\
 <date_time> [error    ] could not decode m/b.py
-"""
-        ),
+"""),
         stderr=snapshot(""),
     )
 
@@ -103,8 +99,7 @@ def test_preview():
             "m/c.py": "def f():pass",
         },
         changed_files=snapshot({}),
-        stdout=snapshot(
-            """\
+        stdout=snapshot("""\
 ⏎
                                      m/a.py                                     ⏎
 ⏎
@@ -116,8 +111,7 @@ def test_preview():
                                                                                 ⏎
 ⏎
 ────────────────────────────────────────────────────────────────────────────────⏎
-"""
-        ),
+"""),
         stderr=snapshot(""),
     )
 
@@ -132,11 +126,9 @@ def test_no_init_module():
         },
         args=["-w"],
         changed_files=snapshot({"m/a.py": "from .q.b import f"}),
-        stdout=snapshot(
-            """\
+        stdout=snapshot("""\
 fix: m/a.py
-"""
-        ),
+"""),
         stderr=snapshot(""),
     )
 
@@ -151,11 +143,9 @@ fix: m/a.py
         args=["-w"],
         no=["into-init"],
         changed_files=snapshot({"m/a.py": "from .q import f"}),
-        stdout=snapshot(
-            """\
+        stdout=snapshot("""\
 fix: m/a.py
-"""
-        ),
+"""),
         stderr=snapshot(""),
     )
 
@@ -201,11 +191,9 @@ def test_import_as():
         },
         args=["-w"],
         changed_files=snapshot({"m/a.py": "from .c import f as g"}),
-        stdout=snapshot(
-            """\
+        stdout=snapshot("""\
 fix: m/a.py
-"""
-        ),
+"""),
         stderr=snapshot(""),
     )
 
@@ -220,11 +208,9 @@ def test_multiple_imports_to_follow():
         },
         args=["-w"],
         changed_files=snapshot({"m/a.py": "from .c import f"}),
-        stdout=snapshot(
-            """\
+        stdout=snapshot("""\
 fix: m/a.py
-"""
-        ),
+"""),
         stderr=snapshot(""),
     )
 
@@ -240,11 +226,9 @@ def test_simple_indirect_to_other_file():
         args=["-w"],
         file_args=["m/a.py"],
         changed_files=snapshot({"m/a.py": "from .c import f"}),
-        stdout=snapshot(
-            """\
+        stdout=snapshot("""\
 fix: m/a.py
-"""
-        ),
+"""),
         stderr=snapshot(""),
     )
 
@@ -260,11 +244,9 @@ def test_different_package():
         },
         args=["-w"],
         changed_files=snapshot({"m/a.py": "from b.c import f"}),
-        stdout=snapshot(
-            """\
+        stdout=snapshot("""\
 fix: m/a.py
-"""
-        ),
+"""),
         stderr=snapshot(""),
     )
 
@@ -305,11 +287,9 @@ def test_import_module():
         },
         args=["-w"],
         changed_files=snapshot({"m/a.py": "from .b import f"}),
-        stdout=snapshot(
-            """\
+        stdout=snapshot("""\
 fix: m/a.py
-"""
-        ),
+"""),
         stderr=snapshot(""),
     )
 
@@ -324,11 +304,9 @@ def test_invalid_syntax():
         args=["-w"],
         file_args=["m/a.py"],
         changed_files=snapshot({}),
-        stdout=snapshot(
-            """\
+        stdout=snapshot("""\
 <date_time> [error    ] could not parse m/b.py
-"""
-        ),
+"""),
         stderr=snapshot(""),
     )
 
@@ -371,11 +349,9 @@ def test_private_indirect():
         args=["-w"],
         no=["public-private"],
         changed_files=snapshot({"m/a.py": "from .c import f"}),
-        stdout=snapshot(
-            """\
+        stdout=snapshot("""\
 fix: m/a.py
-"""
-        ),
+"""),
         stderr=snapshot(""),
     )
 
@@ -392,19 +368,13 @@ from m.b import f
             "m/c.py": "def f():pass",
         },
         args=["-w"],
-        changed_files=snapshot(
-            {
-                "m/a.py": """\
+        changed_files=snapshot({"m/a.py": """\
 from .c import f
 from m.c import f
-"""
-            }
-        ),
-        stdout=snapshot(
-            """\
+"""}),
+        stdout=snapshot("""\
 fix: m/a.py
-"""
-        ),
+"""),
         stderr=snapshot(""),
     )
 
@@ -435,11 +405,9 @@ from ..c import f
 """,
             }
         ),
-        stdout=snapshot(
-            """\
+        stdout=snapshot("""\
 fix: m/a.py
 fix: m/dir/a.py
-"""
-        ),
+"""),
         stderr=snapshot(""),
     )

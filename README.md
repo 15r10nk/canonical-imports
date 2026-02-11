@@ -35,7 +35,7 @@ pip install git+ssh://git@github.com/15r10nk-insiders/canonical-imports.git@insi
 
 I will show you what it does with the following example:
 
-``` python
+```python
 # m/a.py
 from ._core import helper
 
@@ -57,7 +57,7 @@ canonical-imports -w m/a.py
 
 changes `m/a.py` to:
 
-``` python
+```python
 # m/a.py
 from ._utils import helper
 ```
@@ -83,7 +83,7 @@ canonical-imports follows all imports by default. `--no` can be used to prevent 
     ```
 - `--no into-init` prevents following imports into `__init__.py` files.
     Example:
-    ``` python
+    ```python
     # m/__init__.py
     ...
 
