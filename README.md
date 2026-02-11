@@ -1,12 +1,11 @@
 <!-- -8<- [start:Header] -->
 
 
-![ci](https://github.com/15r10nk-insiders/canonical-imports/actions/workflows/ci.yml/badge.svg?branch=main)
+![ci](https://github.com/15r10nk/canonical-imports/actions/workflows/ci.yml/badge.svg?branch=main)
 [![Docs](https://img.shields.io/badge/docs-mkdocs-green)](https://15r10nk.github.io/canonical-imports/)
 [![pypi version](https://img.shields.io/pypi/v/canonical-imports.svg)](https://pypi.org/project/canonical-imports/)
 ![Python Versions](https://img.shields.io/pypi/pyversions/canonical-imports)
 ![PyPI - Downloads](https://img.shields.io/pypi/dw/canonical-imports)
-[![coverage](https://img.shields.io/badge/coverage-100%25-blue)](https://15r10nk.github.io/canonical-imports/contributing/#coverage)
 [![GitHub Sponsors](https://img.shields.io/github/sponsors/15r10nk)](https://github.com/sponsors/15r10nk)
 
 <!-- -8<- [end:Header] -->
@@ -18,13 +17,11 @@ It can change your imports which makes your code cleaner and maybe even faster.
 ## Installation
 
 
-This project is currently only available for insiders, which mean that you can get access to it if you [sponsor](https://github.com/sponsors/15r10nk) me.
-You should then have access to [this repository](https://github.com/15r10nk-insiders/canonical-imports).
 
-You can install it with pip and the github url.
+You can install it with uv.
 
 ``` bash
-pip install git+ssh://git@github.com/15r10nk-insiders/canonical-imports.git@insider
+uvx canonical-imports
 ```
 
 ## Key Features
