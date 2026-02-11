@@ -1,3 +1,4 @@
+import importlib.metadata
 import re
 from pathlib import Path
 
@@ -5,17 +6,26 @@ from canonical_imports._core import main
 from click.testing import CliRunner
 from inline_snapshot import snapshot
 
+click_version = tuple(map(int, importlib.metadata.version("click").split(".")))
+
 
 def check(
     files, file_args=None, args=[], no=[], changed_files={}, stdout="", stderr=""
 ):
-    runner = CliRunner(mix_stderr=False)
+
+    if click_version >= (8, 2):
+        runner = CliRunner()
+    else:
+        runner = CliRunner(mix_stderr=False)
 
     def normalize(text):
         if " \n" in text:
             text = text.replace("\n", "\u23ce\n")
         text = re.sub(
-            r"^\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d", "<date_time>", text, re.MULTILINE
+            r"^\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d",
+            "<date_time>",
+            text,
+            flags=re.MULTILINE,
         )
         return text
 
@@ -100,8 +110,7 @@ def test_preview():
         },
         changed_files=snapshot({}),
         stdout=snapshot("""\
-⏎
-                                     m/a.py                                     ⏎
+m/a.py                                                                          ⏎
 ⏎
                                                                                 ⏎
  @@ -1 +1 @@                                                                    ⏎
@@ -110,7 +119,8 @@ def test_preview():
  +from .c import f                                                              ⏎
                                                                                 ⏎
 ⏎
-────────────────────────────────────────────────────────────────────────────────⏎
+--------------------------------------------------------------------------------⏎
+⏎
 """),
         stderr=snapshot(""),
     )

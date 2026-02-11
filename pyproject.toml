@@ -74,7 +74,7 @@ parallel = true
 scripts.test = "pytest {args:tests}"
 dependencies = [
   "pytest",
-  "inline-snapshot"
+  "inline-snapshot[black]"
 ]
 
 [tool.hatch.envs.all]
@@ -82,13 +82,13 @@ dependencies = [
   "coverage[toml]>=6.5",
   "coverage-enable-subprocess",
   "pytest",
-  "inline-snapshot"
+  "inline-snapshot[black]"
 ]
 env-vars.TOP = "{root}"
 scripts.test-cov = "coverage run -m pytest {args:tests}"
 
 [[tool.hatch.envs.all.matrix]]
-python = ["3.8", "3.9", "3.10", "3.11", "3.12"]
+python = ["3.8", "3.9", "3.10", "3.11", "3.12","3.13","3.14"]
 
 [tool.hatch.envs.cov]
 dependencies = ["coverage[toml]>=6.5"]
