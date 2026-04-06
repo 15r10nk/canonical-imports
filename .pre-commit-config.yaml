@@ -26,7 +26,7 @@ repos:
     - --ignore-init-module-imports
     id: autoflake
   repo: https://github.com/myint/autoflake
-  rev: v2.3.1
+  rev: v2.3.3
 
 - repo: https://github.com/asottile/setup-cfg-fmt
   rev: v3.2.0
@@ -48,7 +48,7 @@ repos:
 - hooks:
   - id: black
   repo: https://github.com/psf/black
-  rev: 26.1.0
+  rev: 26.3.1
 - hooks:
   - id: blacken-docs
   repo: https://github.com/asottile/blacken-docs
@@ -71,4 +71,4 @@ repos:
     stages:
     - commit-msg
   repo: https://github.com/commitizen-tools/commitizen
-  rev: v4.13.7
+  rev: v4.13.9
